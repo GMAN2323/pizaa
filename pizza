@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Website</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js';
+        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/controls/OrbitControls.js';
+
+        // Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const light = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(light);
+
+        // Cube
+        const loader = new THREE.TextureLoader();
+        const cubeTexture = loader.load('assets/cube.png'); // Replace with your image
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ map: cubeTexture });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Skybox
+        const skyboxTexture = loader.load('assets/skybox.jpg'); // Replace with your image
+        scene.background = skyboxTexture;
+
+        // Audio
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+        const sound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load('assets/bg.mp3', function(buffer) {
+            sound.setBuffer(buffer);
+            sound.setLoop(true);
+            sound.setVolume(0.5);
+            sound.play();
+        });
+
+        // Camera controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Positioning
+        camera.position.z = 5;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Responsive handling
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
